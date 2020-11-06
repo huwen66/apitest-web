@@ -1,9 +1,12 @@
-lemon = {
+qccr = {
 		config :{
 				global:{
-					rootUrl: document.location.protocol + "//" + document.location.host+"/lemon/html",
-					htmlUrl: document.location.protocol + "//" + document.location.host+"/lemon/html",
-					adminUrl:"http://admin.ck.org/lemon"
+					rootUrl: document.location.protocol + "//" + "admin.ck.org/qccr",
+					htmlUrl: document.location.protocol + "//" + document.location.host+"/qccr",
+					admin: document.location.protocol + "//" + "admin.ck.org/qccr",
+					qian: document.location.protocol + "//" + "www.ck.org/qccr"
+					
+					//admin: "http://admin.ck.org/qccr"
 				}
 		},
 		core:{
@@ -35,6 +38,13 @@ function attachValidate(selector){
 	return form;
 }
 
+//获取cookie
+ function getCookie(name) {
+    var arr,
+      reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)');
+    if ((arr = document.cookie.match(reg))) return decodeURIComponent(arr[2]);
+    else return null;
+  }
 
 function selectMenuAndTurn2Page(menuFindurl,data,turn2Page,refer){
 	$.post(menuFindurl,data,function(ret){

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <title>接口测试平台</title>
-<link rel="stylesheet" type="text/css" href="/lemon/css/style.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
 <style>
 body{height:100%;background:#16a085;overflow:hidden;}
 canvas{z-index:-1;position:absolute;}
@@ -11,10 +11,10 @@ canvas{z-index:-1;position:absolute;}
 		display:none;
 } 
 </style>
-<script src="/lemon/js/jquery-1.11.3.js"></script>
-<script src="/lemon/js/Particleground.js"></script>
-<script type="text/javascript" src="/lemon/js/jquery.md5.js" charset="UTF-8"></script>
-<script type="text/javascript" src="/lemon/js/common.js" charset="UTF-8"></script>
+<script src="/js/jquery-1.11.3.js"></script>
+<script src="/js/Particleground.js"></script>
+<script type="text/javascript" src="/js/jquery.md5.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/js/common.js" charset="UTF-8"></script>
 <script>
 function checkEmail(){
 	var reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/; 
@@ -30,7 +30,7 @@ function checkEmail(){
 		$("p.tips").html("非法的邮件格式");
 		return false;
 	}
-	var checkRepeatUrl = lemon.config.global.adminUrl + "/user/find";
+	var checkRepeatUrl = qccr.config.global.admin + "/user/find";
 	var isAlreadyRegisterUser = false;
 	$.ajax({
 		type : "GET",
@@ -43,9 +43,7 @@ function checkEmail(){
 		success : function(ret) {
 			if(ret.status=="0"){
 				//找到此用户名的用户
-				//if(ret.data!=null){
-					isAlreadyRegisterUser = true;
-				//}
+				isAlreadyRegisterUser = true;
 			}
 		}
 	});
@@ -113,9 +111,8 @@ $(document).ready(function() {
 			return false;
 		}
 		$(".tips_dd_init").hide();
-		//var addUrl = lemon.config.global.rootUrl + "/user/register";
-		var addUrl =lemon.config.global.adminUrl + "/user/register";
-		
+		var addUrl = qccr.config.global.admin + "/user/register";
+		//  addUrl = "http://admin.ck.org/user/register";
 		$.ajax({
 			type : "POST",
 			url : addUrl,
@@ -128,8 +125,8 @@ $(document).ready(function() {
 			success : function(result) {
 				if(result.status=="1"){
 					alert("注册成功");
-					window.location.href=lemon.config.global.htmlUrl
-							+ "/login.html";
+					window.location.href=qccr.config.global.htmlUrl
+							+ "/html/login.html";
 				}else{
 					$(".tips_dd_init").show();
 					$("p.tips").html(result.message);

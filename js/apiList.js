@@ -17,20 +17,20 @@ function interDataPaging(data,page){
 }
 
 function showApi(apiId){
-	// var baseUrl = lemon.config.global.rootUrl;
+	// var baseUrl = qccr.config.global.rootUrl;
 	// var menuFindurl = baseUrl+"/index/findApiSelectedMenu?apiId="+id;
 	// var data = {"apiId":id};
 	// var turn2Page = baseUrl+"/api/toApiView?apiId="+id;
 	// //跳转到对应页面，并选中对应菜单
 	// selectMenuAndTurn2Page(menuFindurl,data,turn2Page);
-	sessionStorage.setItem("apiId",apiId)
+	sessionStorage.setItem("apiId",apiId);
 }
 
 //分页数据html生成
 function pagingDataBuild(pagedata){
 	var status = 1;
 	var html = '';
-	var baseUrl = lemon.config.global.rootUrl;
+	var baseUrl = qccr.config.global.rootUrl;
 	for(var i=0;i<pagedata.length;i++){
 		html += '<li><ul class="clearfix">';
 
@@ -53,7 +53,6 @@ function pagingDataBuild(pagedata){
 	pageNum:每页显示多少条数据
  */
 function pagingDataShow(pagedata,pageNum){
-	
 	var interDataGroup = interDataPaging(pagedata,pageNum);
 	//分页
 	$('#pagination').pagination({
@@ -66,72 +65,48 @@ function pagingDataShow(pagedata,pageNum){
 	    }
 	});
 	//加载数据
-	
-		$('#interData>ul').html(pagingDataBuild(interDataGroup[0]));
-	
-	
+	$('#interData>ul').html(pagingDataBuild(interDataGroup[0]));
 }
 
 
 $(function(){
-	var projectId =sessionStorage.getItem("projectId")
-	let sessionId=$.cookie("sessionId");
-	var apiClassificationId =sessionStorage.getItem("apiClassificationId")
+	var projectId = sessionStorage.getItem("projectId");
+	var apiClassificationId = sessionStorage.getItem("apiClassificationId");
+	// var projectId = $("[name='projectId']").val();
+	// var apiClassificationId = $("[name='apiClassificationId']").val()==undefined?"":$("[name='apiClassificationId']").val();
 	var listUrl = "";
-	var classnamestr="";
-	var classdDescription="";
 	//获取数据接口
 	if(projectId!=""){
-		listUrl = lemon.config.global.adminUrl+"/api/showApiListByProject?projectId="+projectId;
-		
+		listUrl = qccr.config.global.rootUrl+"/api/showApiUnderProject?projectId="+projectId;
 	}
-	 if(apiClassificationId!=''&&apiClassificationId!=null){
-		listUrl = lemon.config.global.adminUrl+"/api/showApiListByClassificationId?apiClassificationId="+apiClassificationId;
+	if(apiClassificationId!=''&& apiClassificationId!=null){
+		listUrl = qccr.config.global.rootUrl+"/api/showApiUnderApiClassification?apiClassificationId="+apiClassificationId;
 	}
+	let sessionId = $.cookie("sessionId");
 	$.ajax({
-		headers:{"Authorization":sessionId},//将sessionId存放到头部信息中 key要与后端定义头部信息一致
-		url:listUrl,
-		//data:"projectId="+projectId,
-		type:"GET",
-		success:function(ret){
-			if(projectId!=""){
-				classnamestr="全部"
-				classdDescription="全部接口"
-				
+		headers: { "Authorization": sessionId },
+		// data:"projectId"+projectId,
+		url: listUrl,
+		type: "GET",
+		success: function (ret) {
+			$(".desctit-interlist span").text("("+ret.data.length+")");
+			if(ret!=null&&ret.data.length>0){
+				//分页显示数据
+				pagingDataShow(ret.data,3);
 			}
-			if(apiClassificationId!=''&&apiClassificationId!=null&&ret.data.length>0){
-				classnamestr=ret.data[0].classificationName
-				classdDescription=ret.data[0].classificationDescription
-			}else if(ret.data.length==0){
-				$.ajax({
-					headers:{"Authorization":sessionId},
-					url:lemon.config.global.adminUrl+"/apiClassification/"+apiClassificationId,
-					type:"GET",
-					success:function(ret2){
-						if(ret2.status=="1"&&ret2.data!=null){
-							$(".desctit-interlist span").text(ret2.data.name+"接口共(0)个");
-							$(".input-com").val(ret2.data.description);
-						}
-						else if(ret2.status=="1"&&ret2.message=="账号未登录"){
-							location.href=lemon.config.global.rootUrl+"/login.html"
-						}
-					}
-				});
-			}
-			//统计有多少个接口并赋值.desctit-interlist span
-		$(".desctit-interlist span").text(classnamestr+"接口共("+ret.data.length+")个");
-		$(".input-com").val(classdDescription);
-		if(ret!=null&&ret.data.length>0){
-			//分页显示数据
-			pagingDataShow(ret.data,5);
-		}else if(ret!=null&&ret.data.length==0){
-			$(".datatxt-interlist ul").text("暂无数据");
-		}
-		else if(ret.status=="1"&&ret.message=="账号未登录"){
-				location.href=lemon.config.global.rootUrl+"/login.html"
+			if (ret.status == 0 && ret.message == "账号未登录") {
+				location.href = qccr.config.global.htmlUrl + "/html/login.html";
 			}
 		}
-	});
+	})
+	// $.post(listUrl,function(ret){
+	// 	$(".desctit-interlist span").text("("+ret.data.length+")");
+	// 	if(ret!=null&&ret.data.length>0){
+	// 		//分页显示数据
+	// 		pagingDataShow(ret.data,3);
+	// 	}
+	// 	//初始化分类信息
+	// },'json');
 	//接口列表分类下拉框显示隐藏
 	$('#interData').on('click','.icon-droparr',function(){
 		$(this).siblings('.dropcom-interlist').toggleClass('active');
@@ -154,71 +129,85 @@ $(function(){
 
 	//添加接口的弹窗
 	$('.btn-addinter').click(function(){
-		var projectId =sessionStorage.getItem("projectId")
-		let sessionId=$.cookie("sessionId");
-		var url = lemon.config.global.adminUrl+"/apiClassification/findAll";
+		var projectId = sessionStorage.getItem("projectId");
+		var url = qccr.config.global.rootUrl+"/apiClassification/findAll";
 		//准备分类下拉框数据
-		//$.post(url,{"projectId":1},function(ret){
-			$.ajax({
-				headers:{"Authorization":sessionId},//将sessionId存放到头部信息中 key要与后端定义头部信息一致
-				url:url,
-				data:"projectId="+projectId,
-				type:"post",
-				success:function(ret){
-			if(ret.status=="1"&&ret.data.length!=0){
-				var options = "";
-				$.each(ret.data,function(ind,ele){
-					options+=("<option value='"+ele.id+"'>"+ele.name+"</option>");
-				});
-				$("[name='apiClassificationId']").html();
-				$("[name='apiClassificationId']").html(options);
-			}else if(ret.status=="1"&&ret.message=="账号未登录"){
-				location.href=lemon.config.global.rootUrl+"/login.html"
-				//alert(ret.msg);
-			}else if ( ret.data.length==0) {
-					alert("无接口分类信息，请先添加接口分类信息！")
-					return ;
+		$.ajax({
+			headers: { "Authorization": $.cookie("sessionId") },
+			data:"projectId="+projectId,
+			url: url,
+			type: "GET",
+			success: function (ret) {
+				$(".desctit-interlist span").text("("+ret.data.length+")");
+				if(ret.status=="1"){
+					var options = "";
+					//select--options 项下面有很多数据进行拼接，把接口id作为value可以给其他业务用，唯一性
+					$.each(ret.data,function(ind,ele){
+						options+=("<option value='"+ele.id+"'>"+ele.name+"</option>");
+					});
+					//此处要与pojo的属性名一致
+					$("[name='apiClassificationId']").html();
+					//两种方式均可，第二个是根据父类->子类->名字
+					$(".line-addinter select[name='apiClassificationId']").html(options);
+				}
+				var dialog = jqueryAlert({
+					'style'   : 'pc',
+					'title'   : '添加接口',
+					'content' :  $('#addForm'), //$("#alert-blockquote")
+					'modal'   : true,
+					'contentTextAlign' : 'left',
+					'width'   : '520px',
+					'animateType' : 'linear',
+					'buttons' :{
+						'取消' : function(){
+							dialog.close(); 
+						},
+						'提交':function(){	
+							var apiClassificationId = sessionStorage.getItem("apiClassificationId", apiClassificationId);
+							var ifViladate = true;
+							var $form = $('.pcAlert').last().find('#addForm');
+							ifViladate = $form.validate('submitValidate');
+							  if(!ifViladate)return;
+							$.ajax({
+								// headers:{"Authorization":$.cookie("sessionId")},
+								// url:qccr.config.global.rootUrl+"/api/addApiByApiClassification?apiClassificationId="+apiClassificationId,
+								// data:$form.serialize(),
+								// type:'post',
+								// dataType:'json',
+								// async:false,
+								// success:function(ret){
+								// 	if(ret.status=="1"){
+								// 		dialog.close();
+								// 		window.location.reload();
+								// 	}else{
+								// 		alert(ret.message);
+								// 	}
+								// }
+								url:qccr.config.global.admin+"/api/addApi",
+						headers:{"Authorization":$.cookie("sessionId")},
+						
+						data:$form.serialize(),
+						type:'post',
+						dataType:'json',
+						async:false,
+						success:function(ret){
+							if(ret.status=="1"){
+								dialog.close();
+								window.location.reload();
+							}
+						}
+						
+							}); 
+							
+						}
+					}
+				})
 			}
-			var dialog = jqueryAlert({
-			    'style'   : 'pc',
-			    'title'   : '添加接口',
-			    'content' :  $('#addForm'), //$("#alert-blockquote")
-			    'modal'   : true,
-			    'contentTextAlign' : 'left',
-			    'width'   : '520px',
-			    'animateType' : 'linear',
-			    'buttons' :{
-			        '取消' : function(){
-			            dialog.close(); 
-			        },
-			        '提交':function(){	
-			        	var ifViladate = true;
-						var $form = $('.pcAlert').last().find('#addForm');
-					
-			        	ifViladate = $form.validate('submitValidate');
-					  	if(!ifViladate)return;
-			        	$.ajax({
-							url:lemon.config.global.adminUrl+"/api/addApi",
-							headers:{"Authorization":sessionId},
-			        		data:$form.serialize(),
-			        		type:'post',
-			        		dataType:'json',
-			        		async:false,
-			        		success:function(ret){
-			        			if(ret.status=="1"&&ret.message=="新增成功"){
-			        				dialog.close();
-			        				window.location.reload();
-			        			}else if(ret.status=="1"&&ret.message=="账号未登录"){
-									location.href=lemon.config.global.rootUrl+"/login.html"
-			        				//alert(ret.msg);
-			        			}
-			        		}
-			        	}); 
-			        	
-			        }
-			    }
-			})
-		}});
+		})
+		// $.post(url,{"projectId":1},function(ret){
+
+			
+		// },'json');
 	});
 
 	$(document).click(function(e){
@@ -248,7 +237,7 @@ $(function(){
   	});
 	
 	$("#suiteLink").click(function(){
-		var rootUrl = lemon.config.global.rootUrl;
+		var rootUrl = qccr.config.global.rootUrl;
 		var to = rootUrl+"/suite/findAll";
 		window.location.href = to;
 	});

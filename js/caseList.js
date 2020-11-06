@@ -10,9 +10,9 @@ $(function(){
 	$('.data-testass').on('click','.btn-testrep',function(){
 		var caseId = $(this).parent().parent().find("[name='id']").val();
 		$.ajax({
-			url:lemon.config.global.adminUrl+"/testReport/findCaseRunResult",
-			headers:{"Authorization":$.cookie("sessionId")},
-			data:{"caseId":caseId},
+			url:qccr.config.global.rootUrl+"/testReport/findCaseRunResult",
+			headers: { "Authorization": $.cookie("sessionId") },
+			data:{caseId:caseId},
 			dataType:'json',
 			type:'post',
 			async:false,
@@ -20,10 +20,6 @@ $(function(){
 				if(ret.status!=1){
 					return;
 				}
-				console.log(ret.data.responseBody)
-				console.log((ret.data.responseBody!=""))
-				console.log('<pre class="pre-scrollable">'+((ret.data.responseBody!="")?(JSON.stringify(JSON.parse(ret.data.responseBody), null, 2)):(null))+'</pre>')
-				console.log((ret.data.responseBody!="")?(JSON.stringify(JSON.parse(ret.data.responseBody), null, 2)):(null))
 				var reportDiv = '<div class="testrep-layer top-border" id="testReport">'
 					+'<div class="nav-testrep">'
 					+'<ul class="clearfix">'
@@ -32,50 +28,48 @@ $(function(){
 					+'<li>验证结果</li>'
 					+'</ul>'
 					+'</div>'
-					+'<div class="list-testrep pre-scrollable pre-scrollable">'
-					+'<div class="comdul-testrep active"  >'  //style="float:left"
+					+'<div class="list-testrep">'
+					+'<div class="comdul-testrep active">'
 					+'<ul>'
 						+'<li>'
 						+'<label>Url</label>'
 						+'<span>'
-						+'<pre class="pre-scrollable">'+ret.data.requestUrl+'</pre>'
+						+'<pre>'+ret.data.requestUrl+'</pre>'
 						+'</span>'
 						+'</li>'
 						+'<li>'
 						+'<label>Headers</label>'
 						+'<span>'
-						+'<pre class="pre-scrollable">'+JSON.stringify(JSON.parse(ret.data.requestHeaders), null, 2)+'</pre>'
+						+'<pre>'+ret.data.requestHeaders+'</pre>'
 						+'</span>'
 						+'</li>'
 						+'<li>'
 						+'<label>Body</label>'
 						+'<span>'
-						+'<pre class="pre-scrollable">'+JSON.stringify(JSON.parse(ret.data.requestBody), null, 2)+'</pre>'
-						+'</span>'
-						+'</li>'
-					+'</ul>'
-					+'</div>'
-					+'<div class="comdul-testrep" style="float:left">'
-					+'<ul>'
-						+'<li>'
-						+'<label>Headers</label>'
-						+'<span>'
-						+'<pre class="pre-scrollable">'+JSON.stringify(JSON.parse(ret.data.responseHeaders), null, 2)+'</pre>'
-						+'</span>'
-						+'</li>'
-						+'<li>'
-						+'<label>Body</label>'
-						+'<span>'
-						+'<pre class="pre-scrollable">'+((ret.data.responseBody!="")?(JSON.stringify(JSON.parse(ret.data.responseBody), null, 2)):(null))+'</pre>'
+						+'<pre>'+ret.data.requestBody+'</pre>'
 						+'</span>'
 						+'</li>'
 					+'</ul>'
 					+'</div>'
 					+'<div class="comdul-testrep">'
 						+'<li>'
+						+'<label>Headers</label>'
+						+'<span>'
+						+'<pre>'+ret.data.responseHeaders+'</pre>'
+						+'</span>'
+						+'</li>'
+						+'<li>'
+						+'<label>Body</label>'
+						+'<span>'
+						+'<pre>'+ret.data.responseBody+'</pre>'
+						+'</span>'
+						+'</li>'
+					+'</div>'
+					+'<div class="comdul-testrep">'
+						+'<li>'
 						+'<label>验证结果</label>'
 						+'<span>'
-						+'<pre class="pre-scrollable">'+ret.data.passFlag+'</pre>'
+						+'<pre>'+ret.data.passFlag+'</pre>'
 						+'</span>'
 						+'</li>'
 					+'</div>'
@@ -84,11 +78,11 @@ $(function(){
 				//以弹窗形式展示报告
 				var dialog = jqueryAlert({
 				    'style'   : 'pc',
-				    'title'   : '测试详情',
+				    'title'   : '测试报告',
 				    'content' :  reportDiv,
 				    'modal'   : true,
 				    'contentTextAlign' : 'left',
-				    'width'   : '900px',
+				    'width'   : '600px',
 				    'animateType' : 'linear',
 				    'buttons' :{
 				    }
@@ -100,19 +94,18 @@ $(function(){
 	
 	//点击"开始测试"，行测试套件
 	$("#starttest").click(function(){
-		var suiteId =  sessionStorage.getItem("suiteId");
-		var projectId = sessionStorage.getItem("projectId");
+		var suiteId = sessionStorage.getItem("suiteId");
 		var trs = $("table tbody tr");
 		$.each(trs,function(ind,ele){
-			//先清除原本的值
+			//先清除
 			$(ele).find("td:eq(1)").html("");
 			$(ele).find("td:eq(3)").html("");
 		});
 		//后台执行套件
 		$.ajax({
-			url:lemon.config.global.adminUrl+"/testReport/runTest",
-			headers:{"Authorization":$.cookie("sessionId")},
-			data:{"suiteId":suiteId,"projectId":projectId},
+			url:qccr.config.global.rootUrl+"/testReport/run",
+			headers: { "Authorization": $.cookie("sessionId") },
+			data:{suiteId:suiteId},
 			type:'post',
 			dataType:'json',
 			async:false,
@@ -126,13 +119,13 @@ $(function(){
 							//根据当前tr行中的caseId去找到对应用例的执行结果
 							if(caseId==ele.caseId){
 								var passFlag = ele.passFlag;
-								if(passFlag=="succeed"){
+								if(passFlag=="通过"){
 									$(tr).find("td:eq(1)").html("<i class=\"icon-success\"></i>");
-								}else if(passFlag!=="succeed"){
+								}else if(passFlag!=="通过"){
 									$(tr).find("td:eq(1)").html("<i class=\"icon-fail\"></i>");
 								}
 							}
-							$(tr).find("td:eq(3)").html("<a href=\"#\" class=\"btn-testrep btn-com btn-default\">测试详情</a>");
+							$(tr).find("td:eq(3)").html("<a href=\"#\" class=\"btn-testrep btn-com btn-default\">测试报告</a>");
 						});
 					}else{
 						alert(ret.message);
@@ -144,7 +137,7 @@ $(function(){
 	});
 	
 	$("[name='caseEditHref']").click(function(){
-		var baseUrl = lemon.config.global.rootUrl;
+		var baseUrl = qccr.config.global.rootUrl;
 		var menuFindurl = baseUrl+"/index/findCaseSelectedMenu";
 		var caseId = $(this).parent().parent().find("[name='caseId']").val();
 		var data = {"caseId":caseId};
@@ -156,7 +149,7 @@ $(function(){
 	});
 	
 	$("[name='apiUrlHref']").click(function(){
-		var baseUrl = lemon.config.global.rootUrl;
+		var baseUrl = qccr.config.global.rootUrl;
 		//获取菜单的接口
 		var menuFindurl = baseUrl+"/index/findApiSelectedMenu";
 		var apiId = $("[name='apiId']").val();

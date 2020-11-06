@@ -21,64 +21,84 @@ $('.line-interedit .icon-switch').click(function(){
 //添加参数
 $('.linebox-interedit').on('click','.btn-com',function(){
 	//如果已经是选中状态，那么就直接结束
-	var text = $(this).text(); //获取当前触发事件对象的文本值
+	var text = $(this).text();
+	//<a>标签的兄弟节点，此处是指div
 	var siblingsLength = $(this).siblings().length;
 	var appendIndex = siblingsLength;
 	var appendHtml = "";
-	var editdingApiId = sessionStorage.getItem("apiId")
-	var paramName="";
-	var paramvalue="";
+	// var editdingApiId = $("[name='apiId']").val();
+	// let apiId = sessionStorage.getItem("apiId")
+	var editdingApiId = sessionStorage.getItem("apiId");
 	if(text.indexOf("form")>=0){
-		paramName="bodyParams";
-		paramvalue=2
 		//添加一行form参数
-		
+		appendHtml += ("<div class='line-interedit line-com'>"
+			+"<input type='hidden' name='bodyParams["+appendIndex+"].type' value='2' style='width:18%'>"
+			+"<input type='hidden' name='bodyParams["+appendIndex+"].apiId' value='"+editdingApiId+"' style='width:18%'>"
+			+"<input placeholder='name' name='bodyParams["+appendIndex+"].name' value='' style='width:18%' type='text'>"
+			+"<select name='bodyParams["+appendIndex+"].paramType' id='' style='width:12%'>"
+			+"<option value='string'>string</option>"
+			+"<option value='int'>int</option>"
+			+"</select>"
+			+"<textarea name='bodyParams["+appendIndex+"].exampleData' id='' value='' placeholder='参数示例' style='width:20%'></textarea>"
+			+"<textarea name='bodyParams["+appendIndex+"].description' id='' value='' placeholder='备注' style='width:25%'></textarea>"
+			+"<i class='icon icon-delete f-l'></i>"
+			+"</div>"
+		);
 	}else if(text.indexOf("Query")>=0){
-		paramName="queryParams";
-		paramvalue=1
-	
-	}else if(text.indexOf("Header")>=0){
-		paramName="headerParams";
-		paramvalue=3
-	}
-	appendHtml += ("<div class='line-interedit line-com'>"
-				+"<input type='hidden' name='"+paramName+"["+appendIndex+"].type' value='"+paramvalue+"' style='width:18%'>"
-				+"<input type='hidden' name='"+paramName+"["+appendIndex+"].apiId' value='"+editdingApiId+"' style='width:18%'>"
-				+"<input placeholder='参数名称' name='"+paramName+"["+appendIndex+"].name' value='' style='width:20%' type='text'>"
-				+"<select name='"+paramName+"["+appendIndex+"].paramType' id='' style='width:12%'>"
+		//添加一行Query参数
+		appendHtml += ("<div class='line-interedit line-com'>"
+				+"<input type='hidden' name='queryParams["+appendIndex+"].type' value='1' style='width:18%'>"
+				+"<input type='hidden' name='queryParams["+appendIndex+"].apiId' value='"+editdingApiId+"' style='width:18%'>"
+				+"<input placeholder='参数名称' name='queryParams["+appendIndex+"].name' value='' style='width:18%' type='text'>"
+				+"<select name='queryParams["+appendIndex+"].paramType' id='' style='width:12%'>"
 				+"<option value='string'>string</option>"
 				+"<option value='int'>int</option>"
 				+"</select>"
-				+"<textarea name='"+paramName+"["+appendIndex+"].exampleData' id='' value='' placeholder='参数示例' style='width:20%'></textarea>"
-				+"<textarea name='"+paramName+"["+appendIndex+"].description' id='' value='' placeholder='备注' style='width:29%'></textarea>"
+				+"<textarea name='queryParams["+appendIndex+"].exampleData' id='' value='' placeholder='参数示例' style='width:20%''></textarea>"
+				+"<textarea name='queryParams["+appendIndex+"].description' id='' value='' placeholder='备注' style='width:25%'></textarea>"
 				+"<i class='icon icon-delete f-l'></i>"
 				+"</div>"
 		);
+	}else if(text.indexOf("Header")>=0){
+		//添加一行Headers参数
+		appendHtml += ("<div class='line-interedit line-com'>"
+				+"<input type='hidden' name='headerParams["+appendIndex+"].type' value='3' style='width:18%'>"
+				+"<input type='hidden' name='headerParams["+appendIndex+"].apiId' value='"+editdingApiId+"' style='width:18%'>"
+				+"<input placeholder='参数名称' name='headerParams["+appendIndex+"].name' value='' style='width:20%' type='text'>"
+				+"<select name='headerParams["+appendIndex+"].paramType' id='' style='width:12%'>"
+				+"<option value='string'>string</option>"
+				+"<option value='int'>int</option>"
+				+"</select>"
+				+"<textarea name='headerParams["+appendIndex+"].exampleData' id='' value='' placeholder='参数示例' style='width:20%'></textarea>"
+				+"<textarea name='headerParams["+appendIndex+"].description' id='' value='' placeholder='备注' style='width:29%'></textarea>"
+				+"<i class='icon icon-delete f-l'></i>"
+				+"</div>"
+		);
+	}
 	$(this).parent().append(appendHtml);
 })
 //删除当前行参数
 $('.linebox-interedit').on('click','.line-interedit .icon-delete',function(){
-	//将索引重排，避免保存后端时报错
-	//得到兄弟节点数
-	var siblings=$(this).parent().siblings("div");
-	var appendIndex=siblings.length;//兄弟的节点数--不包括他自己
-	//alert(appendIndex)
+	//将索引重排
+	//得到兄弟节点，如果节点数为0退出,否则遍历兄弟，重新替换所有input的name
+	var siblings = $(this).parent().siblings("div");
+	var appendIndex = siblings.length;
 	$(this).parent().remove();
 	if(appendIndex==0){
 		return;
 	}
 	i=0;
 	siblings.each(function(){
-		//$(this)  jquery对象--指代循环后的当前div
-		//jquery对象一般使用点语法调用方法不会直接调用属性
-		var forms=$(this).children().not("i");//排除i标签，不进行循环
+		var forms = $(this).children().not("i");//jQuery对象 点方法
 		i++;
-		$.each(forms,function(index,val){ //val  js对象，可以直接调用属性
-			var  str=val.name;
-			var str2=str.substring(0,str.indexOf('[')+1).concat(i-1).concat(str.substring(str.indexOf(']')));
-			val.name=str2;
+		$.each(forms,function(index,val){
+			var str = val.name;//DOM 原生js对象 点属性
+			//截取[]中的数据
+			var str2 = str.substring(0,str.indexOf('[')+1).concat(i-1).concat(str.substring(str.indexOf(']')));
+			val.name = str2;
 		});
-	});
+	})
+
 });
 //添加当前行参数
 $('.backdata-interedit').on('click','.line-interedit .icon-add',function(){
@@ -103,13 +123,11 @@ $('.backdata-interedit .icon-drop').click(function(){
 	}
 });
 $(function(){
-	var jsonParam = sessionStorage.getItem("jsonParam");
-	//console.log(!jsonParam);
-	//console.log(jsonParam)
-	if(!jsonParam){
-		jsonParam = "{}";
-	}
-	var apiId = sessionStorage.getItem("apiId")
+	
+	jsonParam = "{}";
+	
+	// var apiId = $("[name='apiId']").val();
+	var apiId = sessionStorage.getItem("apiId");
 	var toAddHtml = "<div class='basicinfo-interpre reqparamsset-interedit'>"
  						+"<div class='reqplist-interedit'>"
 						+"<textarea name='bodyRawParams[0].exampleData' id='' class='remark-interedit'>"+jsonParam+"</textarea>"
@@ -209,22 +227,21 @@ $(function(){
 		    }
 		})
 	});
-	// //保存按钮
-	// $(".comfirm-interedit").find(".btn-com").click(function(){
-		// let sessionId = $.cookie("sessionId");
-		// $.ajax({
-		// 	url:lemon.config.global.adminUrl+"/api/edit",
-		// 	headers:{"Authorization":sessionId},
-		// 	data:$("[name='apiEditForm']").serialize(),
-		// 	type:'post',
-		// 	dataType:'json',
-		// 	success:function(ret){
-		// 		if(ret!=null){
-		// 			alert(ret.message);
-		// 		}
-		// 	}
-		// });
-	// });
+	//保存按钮
+	$(".comfirm-interedit").find(".btn-com").click(function(){
+		$.ajax({
+			headers: { "Authorization": $.cookie("sessionId") },
+			url:qccr.config.global.rootUrl+"/api/edit",
+			data:$("[name='apiEditForm']").serialize(),
+			type:'put',
+			dataType:'json',
+			success:function(ret){
+				if(ret!=null){
+					alert(ret.message);
+				}
+			}
+		});
+	});
 	
 	$("[name='apiParamType']").click(function(){
 		if($(this).val()=="json"){

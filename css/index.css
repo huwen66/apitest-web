@@ -94,12 +94,6 @@ i.icon.icon-delete{background-image:url(../images/delete.png);}
 .icon16{width:16px;height:16px;background-size:16px auto;}
 .icon-file{display:inline-block;width:13px;height:13px;vertical-align:middle;margin:0 5px 0 5px;background:url(../images/file3.png) no-repeat 0 0/13px auto;}
 /*************reset***********/
-/****************/
-.titleStyle{height:56px;line-height:56px;padding:0 24px;background-color:#32363a;}
-
-/****************/
-
-
 
 /****************公共头部******************/
 .con-top{height:56px;line-height:56px;padding:0 24px;background-color:#32363a;}
@@ -186,7 +180,7 @@ i.icon.icon-delete{background-image:url(../images/delete.png);}
 .hantmenu-interlist i.icon-copy{background-image:url(../images/copy.png);}
 .hantmenu-interlist i.icon-delete{background-image:url(../images/delete.png);}
 
-.tmenu-interlist{display:none;}   /*none*/
+.tmenu-interlist{display:none;}
 .tmenu-interlist.active{display:block;}
 .tmenu-interlist li{height:30px;line-height:30px;position:relative;margin:3px 0;}
 .tmenu-interlist li a{display:block;margin-left:23px;color:#666;padding-left:5px;}
@@ -759,9 +753,3 @@ i.icon.icon-delete{background-image:url(../images/delete.png);}
     line-height: 30px;
     color: #ff8049;
 }
-/*pre标签滚动条*/
-.pre-scrollable {
-    width:521px; overflow: auto; overflow-y:hidden;
-   /* overflow-y: scroll;*/
-}
-    
